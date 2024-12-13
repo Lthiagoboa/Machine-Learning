@@ -1,0 +1,168 @@
+Estudo realizado para conclusão do curso de Data science e analytics da Puc buscando atender os seguinte tópicos: 
+
+
+
+**Definição do Problema**
+
+**Objetivo: entender e descrever claramente o problema que está sendo resolvido.**
+
+> Qual é a descrição do problema?
+
+
+ O problema se trata de um problema de classificação com o Objetivo de classificar o sentimento que foi apresentado no texto em 'positivo' , 'Neutro e 'Negativo' . Inicialmente sendo utilizado para classificar as informações de twetts mas podendo ser aprofundado e levado para outros campos de estudo como classificação do sentimento de um consumidor ao responder uma pesquisa de NPS entre outros fatores de classificação.
+
+
+> Você tem premissas ou hipóteses sobre o problema? Quais?
+
+As premissas que foram estabelescidas são que os dados estão classificados corretamente. Tendo em vista que não fez parte desse estudo analisar se classificações estavam corretas , caso exista alguma inconsistencia ela só será precebida durante a realização dos testes com novos dados.
+
+> Que restrições ou condições foram impostas para selecionar os dados?
+Descreva o seu dataset (atributos, imagens, anotações, etc).
+
+O conjunto de dados é todo formado por texto de twitts . a restrição que podemos observar é que os dados possuem apenas 3 tipos de classicação que foram mencionadas anteriormente . Para estudos futuros também seria interessante adicionar mais tipos de sentimento para que seja possivel avaliar mais fatores
+
+Preparação de Dados
+
+**Objetivo: realizar operações de preparação dos dados**.
+
+
+> Separe o dataset entre treino e teste (e validação, se aplicável).
+
+O data set já foi fornecido separado entre treino, teste e validação
+
+> Faz sentido utilizar um método de validação cruzada? Justifique se não utilizar.
+
+Tentei utilizar a validação cruzada , contudo , os modelos ficaram muito lento. Isso deve ao fato de serem modelos de deeplearning com elevada necessidade de processamento, a validação cruzada é mais recomendada para modelos mais simples.
+
+> Verifique quais operações de transformação de dados (como normalização e padronização, transformação de imagens em tensores) são mais apropriadas para o seu problema e salve visões diferentes do seu dataset para posterior avaliação dos modelos.
+
+LSTM com GloVe
+Transformações realizadas:
+Tokenização:
+
+Utilizou-se a classe Tokenizer do Keras para transformar os textos em sequências de índices numéricos representando palavras.
+Finalidade: Mapear palavras para um vocabulário fixo.
+Padding e truncamento:
+
+As sequências foram preenchidas (padding) ou truncadas para um comprimento fixo (50 palavras).
+Finalidade: Garantir que todas as sequências tivessem o mesmo tamanho, necessário para entrada no modelo LSTM.
+Embedding com GloVe:
+
+Foi utilizada uma matriz de embeddings pré-treinados (GloVe 100d) para inicializar os pesos da camada de embedding.
+Finalidade: Representar palavras em um espaço vetorial sem necessidade de treinar embeddings do zero.
+Label encoding:
+
+Rótulos categóricos (sentimentos) foram convertidos para números inteiros usando LabelEncoder.
+Finalidade: Transformar rótulos em uma forma utilizável para o modelo.
+DistilBERT
+Transformações realizadas:
+Tokenização:
+
+Utilizou-se o DistilBertTokenizer da biblioteca Hugging Face para dividir os textos em tokens compatíveis com o modelo DistilBERT.
+Processos internos do tokenizer:
+Tokenização subword: Palavras são divididas em subpalavras quando não estão no vocabulário do modelo.
+Adição de tokens especiais: Tokens como [CLS] e [SEP] foram adicionados para sinalizar início e fim das sequências.
+Mapeamento para índices: Os tokens foram mapeados para os índices correspondentes no vocabulário do DistilBERT.
+Padding e truncamento:
+
+Todas as sequências foram preenchidas (padding) ou truncadas para um comprimento máximo fixo (64 tokens).
+Finalidade: Padronizar o tamanho das entradas para o modelo Transformer.
+Label encoding:
+
+Assim como no LSTM, os rótulos foram transformados em números inteiros usando LabelEncoder.
+Conversão para tensores:
+
+Os dados de entrada e rótulos foram convertidos em tensores do TensorFlow para alimentar o modelo.
+
+
+> Refine a quantidade de atributos disponíveis, realizando o processo de feature selection de forma adequada.
+
+O conjunto de dados já veio com alguns pré processamentos que ajudaram na construção do modelo , 1 deles foi o de 'select_text' que ajudou muito o modelo a classificar caso a 
+
+Modelagem e treinamento:
+
+**Objetivo: construir modelos para resolver o problema em questão.**
+
+
+> Selecione os algoritmos mais indicados para o problema e dataset escolhidos, justificando as suas escolhas.
+
+Os algoritmos utilizados foram:
+
+LSTM com embeddings pré-treinados (GloVe).
+DistilBERT para classificação de sentimento.
+Justificativa:
+
+O LSTM foi escolhido por ser uma abordagem robusta para problemas de processamento de linguagem natural, especialmente para sequências curtas.
+O DistilBERT é um modelo de linguagem baseado em Transformer, ideal para tarefas de classificação de texto, com o benefício adicional de ser mais rápido e leve que o BERT completo.
+
+> Há algum ajuste inicial para os hiperparâmetros?
+
+Para ambos os modelos, ajustes foram realizados:
+
+LSTM:
+Tamanho do embedding: 100 dimensões (compatível com GloVe 100d).
+Número de unidades LSTM: 128 para camadas ocultas.
+Regularização com dropout de 0.4 para evitar overfitting.
+DistilBERT:
+Tamanho do batch: 8 (para acelerar o treinamento).
+Comprimento máximo de sequência: 64 (reduzido para maior eficiência).
+Taxa de aprendizado inicial: 5e-5 (compatível com Transformers).
+
+
+> O modelo foi devidamente treinado? Foi observado problema de underfitting?
+
+Ambos os modelos foram devidamente treinados:
+O LSTM não apresentou sinais claros de underfitting, com boas métricas de validação.
+O DistilBERT, mesmo com apenas uma época, atingiu uma validação adequada, o que sugere bom ajuste inicial.
+Nenhum dos modelos apresentou sinais graves de underfitting.
+
+
+> É possível otimizar os hiperparâmetros de algum dos modelos? Se sim, faça-o, justificando todas as escolhas.
+
+
+Sim, Os hiperparametros foram sendo ajustados conforme a necessidade de cada um dos modelos . inicialmente o LSTM apresentou um desempenho um pouco a baixo e com os ajustes esse desempenho foi melhorando . Já o distilbert se demonstrou um pouco lento para processar dessa forma sendo necessário a redução dos parametros para que o codigo rodasse de forma mais rápida . 
+
+> Há algum método avançado ou mais complexo que possa ser avaliado?
+
+Caso tivesse mais tempo para o trinamento iria realizar testes com os seguintes metodos  :
+Fine-Tuning Completo:
+Para DistilBERT, ajustar as camadas superiores e permitir que os pesos inferiores sejam atualizados.
+Transfer Learning:
+Use embeddings gerados por modelos mais avançados, como GPT ou T5.
+
+> Posso criar um comitê de modelos diferentes para o problema (ensembles)?
+
+Sim! seria umaa solução que poderia trazer um resultado ainda mais preciso para o modelo .
+
+**Avaliação de Resultados:**
+
+**Objetivo: analisar o desempenho dos modelos gerados em dados não vistos (com a base de teste)**
+
+
+
+> Selecione as métricas de avaliação condizentes com o problema, justificando.
+
+As métricas selecionadas foram:
+
+Accuracy (acurácia): Para medir o percentual de previsões corretas.
+F1-score: Para equilibrar precisão e recall, especialmente se houver desbalanceamento nas classes.
+Justificativa: O problema é uma classificação de sentimento (multiclasse). Assim, métricas como F1-score ajudam a compreender melhor o desempenho global.
+
+> Treine o modelo escolhido com toda a base de treino, e teste-o com a base de teste.
+
+Treinamei os modelos com a base de treino e os avaliei com a base de teste.
+Observações:
+O LSTM teve uma boa acurácia, mas a acuracia maxima foi de 72% ao tentar mudar outros parametros o modelo acabou ficando muito lendo .
+O DistilBERT mostrou-se um pouco lento, mesmo com apenas uma época, e teve resultados competitivos. acredito que colocando maior quantidade de epocas seja possivel atingir resultados ainda melhores
+
+> Os resultados fazem sentido?
+
+Sim , inclusive realizei teste com novos parametros impatados pelo próprio usuário
+
+> Foi observado algum problema de overfitting?
+
+Não foi observado overfitting significativo em nenhum dos modelos, devido ao uso de dropout (LSTM) e regulação adequada (DistilBERT).
+
+> Compare os resultados de diferentes modelos.Descreva a melhor solução encontrada, justificando.
+
+Acredito que o o modelo distilBert tenha apresentado um desempenho melhor e apesar de ter seus parametros reduzidos para reduzir o tempo de aplicação os resultados foram satisfatorios o que indica que caso a restrição do modelo não seja o tempo de execução ou processamento ele iria desempenhar melhor que os demais
